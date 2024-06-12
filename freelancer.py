@@ -26,6 +26,8 @@ class FreelancerManager:
         return None
 
     def create_freelancer(self, id, name, skills, hourly_rate):
+        if self.find_freelancer_by_id(id):
+            raise ValueError("Freelancer with this ID already exists.")
         freelancer = Freelancer(id, name, skills, hourly_rate)
         self.freelancers.append(freelancer)
         return freelancer
@@ -40,7 +42,7 @@ class FreelancerManager:
             if hourly_rate:
                 freelancer.hourly_rate = hourly_rate
             return freelancer
-        return None
+        raise ValueError("Freelancer with this ID does not exist.")
 
     def delete_freelancer(self, freelancer_id):
         freelancer = self.find_freelancer_by_id(freelancer_id)
@@ -61,19 +63,32 @@ if __name__ == "__main__":
 
     # Creating freelancers
     freelancer_manager.create_freelancer(1, "Ian Chege", ["Python", "JavaScript"], 50)
-    freelancer_manager.create_freelancer(2, "Alice Doe", ["Java", "C++"], 60)
+    freelancer_manager.create_freelancer(2, "Eric Smith", ["Java", "C++"], 60)
 
-    # Finding freelancer by name
-    print(freelancer_manager.find_freelancer_by_name("Ian Chege").id)
+    try:
+        # Creating freelancer with duplicate ID (should raise ValueError)
+        freelancer_manager.create_freelancer(1, "Duplicate Ian", ["Python"], 70)
+    except ValueError as e:
+        print(e)
+
+       # Finding freelancer by name
+    ian_chege = freelancer_manager.find_freelancer_by_name("Ian Chege")
+    if ian_chege:
+        print("Ian Chege found with ID:", ian_chege.id)
 
     # Updating freelancer
-    freelancer_manager.update_freelancer(1, name="Ian Chege Jr.")
-    print(freelancer_manager.find_freelancer_by_id(1).name)
+    updated_freelancer = freelancer_manager.update_freelancer(1, name="Ian Chege Jr.", hourly_rate=55)
+    if updated_freelancer:
+        print("Updated freelancer:", updated_freelancer.name, updated_freelancer.hourly_rate)
 
     # Deleting freelancer
-    freelancer_manager.delete_freelancer(2)
-    print(freelancer_manager.list_freelancers())
+    if freelancer_manager.delete_freelancer(2):
+        print("Freelancer deleted.")
 
     # Listing freelancer clients
-    print(freelancer_manager.list_freelancer_clients(1))
+    ian_chege_clients = freelancer_manager.list_freelancer_clients(1)
+    if ian_chege_clients:
+        print("Ian Chege's clients:", ian_chege_clients)
+    else:
+        print("Ian Chege has no clients.")
 
